@@ -671,26 +671,43 @@ int main(int argc, char ** argv)
     //Get current number of partitions
     unsigned nb_partitions = indexjson["index"][index_name]["nb_partitions"].get<unsigned>();
 
-
-    //Select random reference partition (excepted 0)
-    unsigned reference_partition = RNG::rand_uint32_t(1, nb_partitions);
-
     //Check each partitions
     std::vector<std::string> matrices;
     matrices.reserve(nb_partitions);
 
+    bool partition_zero_exists = false;
     for(unsigned i = 0; i < nb_partitions; ++i)
     {
         std::string p = index_path + "/" + index_name + "/matrices/matrix_" + std::to_string(i) + ".cmbf";
 
         if(std::filesystem::exists(p))
+        {
+            if(i == 0)
+                partition_zero_exists = true;
+
+            //Add partition path to vector
             matrices.push_back(p);
+
+        }
         else
             std::cout << "File '" + p + "' does not exist (skipped)\n";
     }
 
+    //Check if we have at least one partition
+    if(matrices.size() > partition_zero_exists ? 1 : 0)
+    {
+        std::cout << "Found " << matrices.size() << " partitions." << std::endl;
+    }
+    else
+    {
+        std::cerr << "Error: No partitions found in index '" << index_name << "'\n";
+        return 2;
+    }
 
-    std::string reference_matrix = index_path + "/" + index_name + "/matrices/matrix_" + std::to_string(reference_partition) + ".cmbf";
+    //Select random reference partition (excepted 0) within existing partitions
+    unsigned reference_partition = RNG::rand_uint32_t(partition_zero_exists ? 1 : 0, matrices.size() - 1);
+    std::string reference_matrix = matrices[reference_partition];
+
     std::string out_order = index_path + "/" + index_name + "/order.bin";
 
     std::vector<unsigned> order;
