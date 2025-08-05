@@ -675,7 +675,7 @@ int main(int argc, char ** argv)
     std::vector<std::string> matrices;
     matrices.reserve(nb_partitions);
 
-    bool partition_zero_exists = false;
+    bool partition_zero_found = false;
     for(unsigned i = 0; i < nb_partitions; ++i)
     {
         std::string p = index_path + "/" + index_name + "/matrices/matrix_" + std::to_string(i) + ".cmbf";
@@ -683,7 +683,7 @@ int main(int argc, char ** argv)
         if(std::filesystem::exists(p))
         {
             if(i == 0)
-                partition_zero_exists = true;
+                partition_zero_found = true;
 
             //Add partition path to vector
             matrices.push_back(p);
@@ -694,7 +694,7 @@ int main(int argc, char ** argv)
     }
 
     //Check if we have at least one partition
-    if(matrices.size() > partition_zero_exists ? 1 : 0)
+    if(matrices.size() > partition_zero_found ? 1 : 0)
     {
         std::cout << "Found " << matrices.size() << " partitions." << std::endl;
     }
@@ -705,7 +705,7 @@ int main(int argc, char ** argv)
     }
 
     //Select random reference partition (excepted 0) within existing partitions
-    unsigned reference_partition = RNG::rand_uint32_t(partition_zero_exists ? 1 : 0, matrices.size() - 1);
+    unsigned reference_partition = RNG::rand_uint32_t(partition_zero_found ? 1 : 0, matrices.size() - 1);
     std::string reference_matrix = matrices[reference_partition];
 
     std::string out_order = index_path + "/" + index_name + "/order.bin";
