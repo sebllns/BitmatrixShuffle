@@ -1,6 +1,9 @@
 #include <reorder.h>
 #include <chrono>
 
+#include <cstring>  // for strerror
+#include <cerrno>   // for errno
+
 #define DECLARE_TIMER std::chrono::time_point<std::chrono::high_resolution_clock> __start_timer, __stop_timer; std::size_t __integral_time
 
 #define START_TIMER __start_timer = std::chrono::high_resolution_clock::now(); \
@@ -128,7 +131,8 @@ namespace Reorder
         int fd = open(MATRICES[0].c_str(), O_RDONLY); //Open reference matrix in read-only
         
         if(fd < 0)
-            throw std::runtime_error("Failed to open a file descriptor on reference matrix");
+            throw std::runtime_error("Failed to open reference matrix: " + 
+                            std::string(strerror(errno)));
 
         //Get file size
         const std::size_t FILE_SIZE = lseek(fd, 0, SEEK_END);
