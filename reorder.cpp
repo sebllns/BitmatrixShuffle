@@ -749,29 +749,32 @@ int main(int argc, char ** argv)
     
     if (!ifdfof.is_open()) 
     {
-        std::cerr << "Error: Could not read file '" << fof_path << "'\n";
-        return 2;
+        std::cerr << "Warning: Could not read file '" << fof_path << "'\n";
     }
-
-    //Store all lines
-    unsigned i = 0;
-    std::string line;
-    while (std::getline(ifdfof, line) && i < nb_samples)
-        samples[i++] = line;
-
-    ifdfof.close();
-    std::ofstream ofdfof(fof_path);
-
-    if (!ofdfof.is_open()) 
+    else
     {
-        std::cerr << "Error: Could not write file '" << fof_path << "'\n";
-        return 2;
+        //Store all lines
+        unsigned i = 0;
+        std::string line;
+        while (std::getline(ifdfof, line) && i < nb_samples)
+            samples[i++] = line;
+
+        ifdfof.close();
+        std::ofstream ofdfof(fof_path);
+
+        if (!ofdfof.is_open()) 
+        {
+            std::cerr << "Error: Could not write file '" << fof_path << "'\n";
+        }
+        else
+        {
+            for(i = 0; i < nb_samples; ++i)
+                ofdfof << samples[rev8(order[rev8(i)])] << '\n';
+
+            ofdfof.close();
+        }
+
     }
-
-    for(i = 0; i < nb_samples; ++i)
-        ofdfof << samples[rev8(order[rev8(i)])] << '\n';
-
-    ofdfof.close();
 }
 
 #undef ALLOCATE_MATRIX
